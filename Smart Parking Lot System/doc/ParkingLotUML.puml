@@ -1,0 +1,78 @@
+@startuml
+title Smart Parking Lot - Class Diagram
+
+enum VehicleType {
+  MOTORCYCLE
+  CAR
+  BUS
+}
+
+enum SpotType {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum SpotStatus {
+  AVAILABLE
+  OCCUPIED
+}
+
+class Vehicle {
+  -licenseNumber : String
+  -vehicleType : VehicleType
+}
+
+class ParkingSpot {
+  -id : String
+  -spotType : SpotType
+  -status : SpotStatus
+  +assign() : boolean
+  +release() : void
+}
+
+class ParkingFloor {
+  -floorNumber : int
+  -spots : List<ParkingSpot>
+}
+
+class ParkingTicket {
+  -ticketId : String
+  -vehicle : Vehicle
+  -spot : ParkingSpot
+  -entryTime : LocalDateTime
+  -exitTime : LocalDateTime
+  -fee : double
+  +closeTicket(exitTime, fee)
+}
+
+class FeeCalculator {
+  +calculateFee(vehicleType, entryTime, exitTime) : double
+}
+
+class SpotAllocationService {
+  +allocateSpot(vehicleType, floors) : ParkingSpot
+}
+
+class ParkingLotService {
+  -floors : List<ParkingFloor>
+  -activeTickets : Map<String, ParkingTicket>
+  +checkIn(vehicle) : ParkingTicket
+  +checkOut(licenseNumber) : double
+  +showAvailableSpots()
+}
+
+Vehicle --> VehicleType
+ParkingSpot --> SpotType
+ParkingSpot --> SpotStatus
+
+ParkingFloor "1" o-- "*" ParkingSpot
+ParkingTicket "*" --> "1" Vehicle
+ParkingTicket "*" --> "1" ParkingSpot
+
+ParkingLotService --> ParkingFloor
+ParkingLotService --> ParkingTicket
+ParkingLotService --> SpotAllocationService
+ParkingLotService --> FeeCalculator
+
+@enduml
